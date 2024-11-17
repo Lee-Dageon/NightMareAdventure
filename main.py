@@ -1,5 +1,6 @@
 import math
 import pygame
+import random
 
 # 초기화
 pygame.init()
@@ -18,28 +19,32 @@ FPS = 60
 
 # 배경 이미지 로드
 background = pygame.image.load("./assets/gamebackground.png").convert()
-background = pygame.transform.scale(background, (1600, 1200))  # 배경은 플레이어 이동에 맞게 더 크게 설정
+background = pygame.transform.scale(background, (1600, 1200))
+
+# Mouse 클릭 시 표시할 이미지 로드
+mouse_click_image = pygame.image.load("./Art/Mouse/Mouse OutRange.png").convert_alpha()
+mouse_click_image = pygame.transform.scale(mouse_click_image, (50, 50))
+mouse_click_rect = mouse_click_image.get_rect()
+mouse_image_visible = False
 
 # Player 클래스
 class Player(pygame.sprite.Sprite):
     def __init__(self, x, y):
         super(Player, self).__init__()
-        # 플레이어 이미지 불러오기
         self.image = pygame.image.load('./Art/Character/Player Secondary Attack frame 1.png').convert_alpha()
-        self.original_image = self.image  # 회전 시 원본 보존
+        self.attack_image = pygame.image.load("./Art/Character/Player Primary Attack.png").convert_alpha()
+        self.original_image = self.image
         self.rect = self.image.get_rect(center=(x, y))
-        self.speed = 5  # 플레이어 이동 속도
+        self.speed = 8
 
     def update_direction(self, mouse_pos):
-        # 마우스와의 각도 계산 및 이미지 회전
-        dx = mouse_pos[0] - WIDTH // 2  # 화면 중앙 기준
+        dx = mouse_pos[0] - WIDTH // 2
         dy = mouse_pos[1] - HEIGHT // 2
         angle = math.atan2(dy, dx)
         self.image = pygame.transform.rotate(self.original_image, -math.degrees(angle) - 90)
         self.rect = self.image.get_rect(center=self.rect.center)
 
     def move(self, keys):
-        # WASD 키에 따라 이동
         if keys[pygame.K_w]:
             self.rect.y -= self.speed
         if keys[pygame.K_s]:
@@ -49,6 +54,31 @@ class Player(pygame.sprite.Sprite):
         if keys[pygame.K_d]:
             self.rect.x += self.speed
 
+class Monster(pygame.sprite.Sprite):
+    def __init__(self, x, y):
+        super(Monster, self).__init__()
+        self.original_image = pygame.image.load('./Art/Enemies/Basic_Enemy.png').convert_alpha()
+        self.original_image = pygame.transform.scale(self.original_image, (40, 40))  # 크기 조정
+        self.image = self.original_image
+        self.rect = self.image.get_rect(center=(x, y))
+        self.speed = random.uniform(0.5, 0.8)  # 속도 조정
+
+    def update(self, target):
+        # 플레이어를 향한 방향 계산
+        dx = target.rect.centerx - self.rect.centerx
+        dy = target.rect.centery - self.rect.centery
+        distance = math.sqrt(dx ** 2 + dy ** 2)
+        if distance > 0:
+            # 몬스터의 회전
+            angle = math.degrees(math.atan2(-dy, dx))  # atan2의 결과를 각도로 변환
+            self.image = pygame.transform.rotate(self.original_image, angle)
+            self.rect = self.image.get_rect(center=self.rect.center)
+
+            # 몬스터 이동
+            self.rect.x += (self.speed * dx / distance)
+            self.rect.y += (self.speed * dy / distance)
+
+
 # 카메라 클래스
 class Camera:
     def __init__(self, width, height):
@@ -57,13 +87,17 @@ class Camera:
         self.height = height
 
     def apply(self, entity):
-        # 카메라 위치를 적용하여 객체의 렌더링 위치 조정
         return entity.rect.move(-self.camera.topleft[0], -self.camera.topleft[1])
 
     def update(self, target):
-        # 플레이어를 중심으로 카메라 위치 업데이트
-        x = target.rect.centerx - WIDTH // 2
-        y = target.rect.centery - HEIGHT // 2
+        # 주인공을 따라가는 속도를 설정 (중앙에 고정되지 않도록 약간의 오프셋 추가)
+        smooth_factor = 0.02  # 카메라 따라가는 부드러움 조정
+        target_x = target.rect.centerx - WIDTH // 2
+        target_y = target.rect.centery - HEIGHT // 2
+
+        # 카메라가 주인공을 따라갈 때 점진적으로 이동
+        x = self.camera.x + smooth_factor * (target_x - self.camera.x)
+        y = self.camera.y + smooth_factor * (target_y - self.camera.y)
 
         # 카메라가 맵 경계를 벗어나지 않도록 제한
         x = max(0, min(x, self.width - WIDTH))
@@ -71,9 +105,34 @@ class Camera:
 
         self.camera = pygame.Rect(x, y, WIDTH, HEIGHT)
 
+# 몬스터 그룹 및 스폰 함수
+monsters = pygame.sprite.Group()
+
+def spawn_monsters(count):
+    for _ in range(count):
+        side = random.choice(["left", "right", "top", "bottom"])
+        if side == "left":
+            x, y = 0, random.randint(0, HEIGHT)
+        elif side == "right":
+            x, y = WIDTH, random.randint(0, HEIGHT)
+        elif side == "top":
+            x, y = random.randint(0, WIDTH), 0
+        else:  # bottom
+            x, y = random.randint(0, WIDTH), HEIGHT
+        monster = Monster(x, y)
+        monsters.add(monster)
+
 # Player 객체 생성
-player = Player(800, 600)  # 맵 중앙에서 시작
-camera = Camera(1600, 1200)  # 배경 크기에 맞춰 설정
+player = Player(800, 600)
+camera = Camera(1600, 1200)
+
+# 초기 몬스터 생성 및 타이머 설정
+spawn_monsters(15)  # 시작 시 몬스터 15마리 생성
+monster_spawn_timer = pygame.USEREVENT + 1
+pygame.time.set_timer(monster_spawn_timer, 1000)  # 1초마다 이벤트 발생
+
+# 몬스터 증가 수 관리 변수
+monster_spawn_count = 5  # 1초마다 스폰할 초기 몬스터 수
 
 # 메인 루프
 running = True
@@ -81,29 +140,36 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            mouse_pos = pygame.mouse.get_pos()
+            mouse_click_rect.center = (mouse_pos[0] + camera.camera.x, mouse_pos[1] + camera.camera.y)
+            mouse_image_visible = True
+        elif event.type == pygame.MOUSEBUTTONUP:
+            mouse_image_visible = False
+        elif event.type == monster_spawn_timer:
+            spawn_monsters(monster_spawn_count)  # 현재 카운트만큼 몬스터 스폰
+            monster_spawn_count += 1  # 몬스터 스폰 수 증가
 
-    # 키 입력 상태 가져오기
     keys = pygame.key.get_pressed()
-
-    # 마우스 위치 가져오기
     mouse_pos = pygame.mouse.get_pos()
 
-    # 플레이어 이동 및 방향 업데이트
     player.move(keys)
     player.update_direction(mouse_pos)
-
-    # 카메라 업데이트
     camera.update(player)
 
-    # 배경 및 플레이어 그리기
     screen.fill(WHITE)
-    screen.blit(background, (-camera.camera.x, -camera.camera.y))  # 카메라 위치에 맞춰 배경 이동
-    screen.blit(player.image, camera.apply(player))  # 카메라 적용된 플레이어 위치
+    screen.blit(background, (-camera.camera.x, -camera.camera.y))
+    screen.blit(player.image, camera.apply(player))
 
-    # 화면 업데이트
+    # 몬스터 업데이트 및 그리기
+    monsters.update(player)
+    monsters.draw(screen)
+
+    # 마우스 클릭 이미지 표시
+    if mouse_image_visible:
+        screen.blit(mouse_click_image, (mouse_click_rect.x - camera.camera.x, mouse_click_rect.y - camera.camera.y))
+
     pygame.display.flip()
-
-    # FPS 유지
     clock.tick(FPS)
 
 pygame.quit()
