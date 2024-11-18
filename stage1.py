@@ -148,6 +148,7 @@ def draw_bomb_count():
     if font is None:  # 폰트가 로드되지 않은 경우 로드
         font = load_font('consola.ttf', 30)
     font.draw(10,570, f"Bomb Count: {bomb_count}", (255, 0,0))  # 좌상단에 출력
+
 # 화면 그리기
 def draw():
     clear_canvas()
