@@ -16,6 +16,8 @@ pygame.display.set_caption("Zoom and Camera Follow")
 WHITE = (255, 255, 255)
 
 
+
+
 # FPS 설정
 clock = pygame.time.Clock()
 FPS = 60
