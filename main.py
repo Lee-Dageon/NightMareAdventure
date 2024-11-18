@@ -21,6 +21,22 @@ FPS = 60
 background = pygame.image.load("./assets/gamebackground.png").convert()
 background = pygame.transform.scale(background, (1600, 1200))
 
+
+# Bomb 이미지 로드
+bomb_image = pygame.image.load("./Art/Items/bomb.png").convert_alpha()
+bomb_image = pygame.transform.scale(bomb_image, (80, 80))  # 적절한 크기로 조정
+bombs = []  # 폭탄 리스트
+bomb_count = 0  # 폭탄 획득 카운트 초기값
+bomb_radius = 40  # 폭탄 반경
+
+
+# 폰트 초기화
+font = pygame.font.Font(None, 36)  # 기본 폰트, 크기 36
+
+# 폭탄 스폰 타이머 설정
+bomb_spawn_timer = pygame.USEREVENT + 2
+pygame.time.set_timer(bomb_spawn_timer, 1000)  # 2초마다 이벤트 발생
+
 # Mouse 클릭 시 표시할 이미지 로드
 mouse_click_image = pygame.image.load("./Art/Mouse/Mouse OutRange.png").convert_alpha()
 mouse_click_image = pygame.transform.scale(mouse_click_image, (50, 50))
@@ -122,6 +138,7 @@ def spawn_monsters(count):
         monster = Monster(x, y)
         monsters.add(monster)
 
+
 # Player 객체 생성
 player = Player(800, 600)
 camera = Camera(1600, 1200)
@@ -133,6 +150,8 @@ pygame.time.set_timer(monster_spawn_timer, 1000)  # 1초마다 이벤트 발생
 
 # 몬스터 증가 수 관리 변수
 monster_spawn_count = 5  # 1초마다 스폰할 초기 몬스터 수
+
+
 
 # 메인 루프
 running = True
@@ -149,6 +168,12 @@ while running:
         elif event.type == monster_spawn_timer:
             spawn_monsters(monster_spawn_count)  # 현재 카운트만큼 몬스터 스폰
             monster_spawn_count += 1  # 몬스터 스폰 수 증가
+        elif event.type == bomb_spawn_timer:
+            # 새로운 폭탄을 리스트에 추가
+            bomb_rect = bomb_image.get_rect(
+                center=(random.randint(0, 1600), random.randint(0, 1200))  # 배경 맵 크기 기준으로 랜덤 위치 설정
+            )
+            bombs.append(bomb_rect)
 
     keys = pygame.key.get_pressed()
     mouse_pos = pygame.mouse.get_pos()
@@ -165,9 +190,29 @@ while running:
     monsters.update(player)
     monsters.draw(screen)
 
+
+    # 주인공과 폭탄 충돌 감지 및 제거
+    for bomb in bombs[:]:  # 리스트 복사본으로 순회
+        if player.rect.colliderect(bomb):
+            bombs.remove(bomb)  # 충돌한 폭탄 제거
+            print("폭탄 획득!")  # 디버깅 메시지
+            bomb_count += 1
+
+
     # 마우스 클릭 이미지 표시
     if mouse_image_visible:
         screen.blit(mouse_click_image, (mouse_click_rect.x - camera.camera.x, mouse_click_rect.y - camera.camera.y))
+
+        # 폭탄 렌더링 (카메라 위치 반영)
+    for bomb in bombs:
+        screen.blit(bomb_image, (bomb.x - camera.camera.x, bomb.y - camera.camera.y))
+
+    RED = (255, 0, 0)
+
+    # bomb_count를 화면 오른쪽 위에 표시
+    bomb_text = font.render(f"Bombs: {bomb_count}", True, RED)  # 검은색 텍스트
+    screen.blit(bomb_text, (WIDTH - 150, 10))  # 화면 오른쪽 위에 표시
+
 
     pygame.display.flip()
     clock.tick(FPS)
