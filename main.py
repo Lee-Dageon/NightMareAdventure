@@ -29,13 +29,14 @@ bombs = []  # 폭탄 리스트
 bomb_count = 0  # 폭탄 획득 카운트 초기값
 bomb_radius = 40  # 폭탄 반경
 
+# 폭탄 스폰 타이머 설정
+bomb_spawn_timer = pygame.USEREVENT + 2
+pygame.time.set_timer(bomb_spawn_timer, 1000)  # 2초마다 이벤트 발생
+
 
 # 폰트 초기화
 font = pygame.font.Font(None, 36)  # 기본 폰트, 크기 36
 
-# 폭탄 스폰 타이머 설정
-bomb_spawn_timer = pygame.USEREVENT + 2
-pygame.time.set_timer(bomb_spawn_timer, 1000)  # 2초마다 이벤트 발생
 
 # Mouse 클릭 시 표시할 이미지 로드
 mouse_click_image = pygame.image.load("./Art/Mouse/Mouse OutRange.png").convert_alpha()
@@ -70,29 +71,6 @@ class Player(pygame.sprite.Sprite):
         if keys[pygame.K_d]:
             self.rect.x += self.speed
 
-class Monster(pygame.sprite.Sprite):
-    def __init__(self, x, y):
-        super(Monster, self).__init__()
-        self.original_image = pygame.image.load('./Art/Enemies/Basic_Enemy.png').convert_alpha()
-        self.original_image = pygame.transform.scale(self.original_image, (40, 40))  # 크기 조정
-        self.image = self.original_image
-        self.rect = self.image.get_rect(center=(x, y))
-        self.speed = random.uniform(0.5, 0.8)  # 속도 조정
-
-    def update(self, target):
-        # 플레이어를 향한 방향 계산
-        dx = target.rect.centerx - self.rect.centerx
-        dy = target.rect.centery - self.rect.centery
-        distance = math.sqrt(dx ** 2 + dy ** 2)
-        if distance > 0:
-            # 몬스터의 회전
-            angle = math.degrees(math.atan2(-dy, dx))  # atan2의 결과를 각도로 변환
-            self.image = pygame.transform.rotate(self.original_image, angle)
-            self.rect = self.image.get_rect(center=self.rect.center)
-
-            # 몬스터 이동
-            self.rect.x += (self.speed * dx / distance)
-            self.rect.y += (self.speed * dy / distance)
 
 
 # 카메라 클래스
@@ -120,6 +98,32 @@ class Camera:
         y = max(0, min(y, self.height - HEIGHT))
 
         self.camera = pygame.Rect(x, y, WIDTH, HEIGHT)
+
+
+
+class Monster(pygame.sprite.Sprite):
+    def __init__(self, x, y):
+        super(Monster, self).__init__()
+        self.original_image = pygame.image.load('./Art/Enemies/Basic_Enemy.png').convert_alpha()
+        self.original_image = pygame.transform.scale(self.original_image, (40, 40))  # 크기 조정
+        self.image = self.original_image
+        self.rect = self.image.get_rect(center=(x, y))
+        self.speed = random.uniform(0.5, 0.8)  # 속도 조정
+
+    def update(self, target):
+        # 플레이어를 향한 방향 계산
+        dx = target.rect.centerx - self.rect.centerx
+        dy = target.rect.centery - self.rect.centery
+        distance = math.sqrt(dx ** 2 + dy ** 2)
+        if distance > 0:
+            # 몬스터의 회전
+            angle = math.degrees(math.atan2(-dy, dx))  # atan2의 결과를 각도로 변환
+            self.image = pygame.transform.rotate(self.original_image, angle)
+            self.rect = self.image.get_rect(center=self.rect.center)
+
+            # 몬스터 이동
+            self.rect.x += (self.speed * dx / distance)
+            self.rect.y += (self.speed * dy / distance)
 
 # 몬스터 그룹 및 스폰 함수
 monsters = pygame.sprite.Group()
