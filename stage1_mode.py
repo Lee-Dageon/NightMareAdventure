@@ -1,4 +1,4 @@
-# stage1.py
+# stage1_mode.py
 from pico2d import *
 import game_framework
 import game_world

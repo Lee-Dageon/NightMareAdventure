@@ -1,5 +1,5 @@
 from pico2d import *
 import game_framework
-import stage1
+import stage1_mode
 
-game_framework.run(stage1)
+game_framework.run(stage1_mode)

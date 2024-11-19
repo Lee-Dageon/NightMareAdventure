@@ -2,7 +2,7 @@ from pico2d import *
 import math
 
 import game_world
-import stage1
+import stage1_mode
 
 class Idle:
     @staticmethod
@@ -99,4 +99,4 @@ class Player:
 
         if group == "player:bomb":
             print("Player collided with a Bomb!")
-            stage1.bomb_count += 1  # 폭탄 개수 증가
+            stage1_mode.bomb_count += 1  # 폭탄 개수 증가
