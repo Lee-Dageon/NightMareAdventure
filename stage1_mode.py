@@ -22,7 +22,9 @@ spawn_count = 10  # 처음 스폰되는 몬스터 수
 
 # 폭탄 생성 관련 변수
 bomb_spawn_timer = 0  # 마지막 폭탄 생성 시점
-bomb_spawn_interval = 3.0  # 폭탄 생성 간격 (초)
+bomb_spawn_interval = 1.5  # 폭탄 생성 간격 (초)
+# 폭탄 생성 관련 변수
+special_bomb_timer = 0  # 마지막 특수 폭탄 생성 시점
 
 # 게임 객체 초기화
 def init():
@@ -67,11 +69,12 @@ def spawn_monsters(count, player, camera):
         game_world.add_object(monster, 1)  # 게임 월드에 추가
         game_world.add_collision_pair('player:monster', player, monster)
 
-def spawn_bomb(camera):
-    bomb = Bomb(camera)
-    game_world.add_object(bomb, 1)  # Depth 1에 추가
+def spawn_bomb(camera, is_special=False):
+    bomb = Bomb(camera, is_special=is_special)
+    game_world.add_object(bomb, 1)  # 게임 월드에 폭탄 추가
     game_world.add_collision_pair('player:bomb', player, bomb)
-    print(f"Bomb spawned at ({bomb.x}, {bomb.y})")
+   # print(f"{'Special ' if is_special else ''}Bomb spawned at ({bomb.x}, {bomb.y})")
+
 
 
 #충돌 박스 그리기
@@ -137,7 +140,7 @@ def handle_events():
 
 # 게임 업데이트 로직
 def update():
-    global spawn_timer, spawn_count, bomb_spawn_timer, bomb_effects
+    global spawn_timer, spawn_count, bomb_spawn_timer, special_bomb_timer, bomb_effects, spawn_interval
 
     # 현재 시간 가져오기
     current_time = get_time()
@@ -148,10 +151,20 @@ def update():
         spawn_monsters(spawn_count, player, camera)  # 현재 스폰 카운트만큼 몬스터 스폰
         spawn_count += 1  # 스폰 카운트 증가
 
+        # spawn_interval을 조금씩 증가 (최대값 제한 가능)
+        spawn_interval += 1  # 0.2초씩 증가
+        spawn_interval = min(spawn_interval, 8.0)  # 최대 10초로 제한
+
+
     # 폭탄 생성 타이머 확인 및 호출
     if current_time > bomb_spawn_timer + bomb_spawn_interval:
         bomb_spawn_timer = current_time  # 폭탄 타이머 갱신
         spawn_bomb(camera)  # 폭탄 생성
+
+    # 특수 폭탄 생성 (20초마다)
+    if current_time > special_bomb_timer + 10.0:
+        special_bomb_timer = current_time
+        spawn_bomb(camera, is_special=True)
 
     # 폭발 효과 업데이트 및 제거
     elapsed_time = 0.016  # 60FPS 기준 프레임 간 시간

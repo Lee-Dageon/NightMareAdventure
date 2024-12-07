@@ -2,11 +2,18 @@ from pico2d import *
 import random
 
 import game_world
+import stage1_mode
 
 
 class Bomb:
-    def __init__(self, camera):
-        self.image = load_image('./Art/Items/bomb_character.png')
+    def __init__(self, camera, is_special=False):
+        # 일반 폭탄과 특수 폭탄 이미지 선택
+        if is_special:
+            self.image = load_image('./Art/Items/special_bomb_character.png')
+        else:
+            self.image = load_image('./Art/Items/bomb_character.png')
+
+        self.is_special = is_special  # 특수 폭탄 여부 플래그
         self.x = random.randint(100, 1600 - 100)  # 폭탄이 생성될 X 좌표
         self.y = random.randint(100, 1200 - 100)  # 폭탄이 생성될 Y 좌표
         self.camera = camera  # 카메라 객체를 참조
@@ -27,7 +34,7 @@ class Bomb:
         self.image.clip_draw(
             self.frame * sprite_width, 0, sprite_width, sprite_height,
             self.x - camera_x, self.y - camera_y,
-            sprite_width * 3, sprite_height * 3  # 2배 크기로 출력
+            sprite_width * 2, sprite_height * 2  # 2배 크기로 출력
         )
 
         # 충돌 박스도 카메라 보정 후 그리기
@@ -41,7 +48,11 @@ class Bomb:
 
     def handle_collision(self, group, other):
         if group == "player:bomb":
-            print("Bomb collided with Player!")
+            print(f"{'Special ' if self.is_special else ''}Bomb collided with Player!")
+            # 특수 폭탄은 추가 효과 적용
+            if self.is_special:
+                stage1_mode.bomb_count += 9  # 플레이어의 폭탄 개수를 10 증가
+
             game_world.remove_object(self)  # 폭탄 삭제
 
     def update(self):

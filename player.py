@@ -7,11 +7,13 @@ import stage1_mode
 class Idle:
     @staticmethod
     def enter(player):
-        print("Entering Idle state")
+        pass
+      #  print("Entering Idle state")
 
     @staticmethod
     def exit(player):
-        print("Exiting Idle state")
+        pass
+      #  print("Exiting Idle state")
 
     @staticmethod
     def update(player):
@@ -23,11 +25,13 @@ class Idle:
 class Move:
     @staticmethod
     def enter(player):
-        print("Entering Move state")
+        pass
+      #  print("Entering Move state")
 
     @staticmethod
     def exit(player):
-        print("Exiting Move state")
+        pass
+       # print("Exiting Move state")
 
     @staticmethod
     def update(player):
@@ -132,9 +136,10 @@ class Player:
 
     def handle_collision(self, group, other):
         if group == "player:monster":
-            print("Player collided with a Monster!")
+            pass
+          # print("Player collided with a Monster!")
             # 몬스터 충돌 처리 로직 추가
 
         if group == "player:bomb":
-            print("Player collided with a Bomb!")
+           # print("Player collided with a Bomb!")
             stage1_mode.bomb_count += 1  # 폭탄 개수 증가
