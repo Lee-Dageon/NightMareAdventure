@@ -9,6 +9,7 @@ from monster import Monster
 from bomb import Bomb
 import random
 import lose_mode
+from potion import Potion
 
 # 초기화
 WIDTH, HEIGHT = 800, 600
@@ -26,6 +27,7 @@ bomb_spawn_timer = 0  # 마지막 폭탄 생성 시점
 bomb_spawn_interval = 1.5  # 폭탄 생성 간격 (초)
 # 폭탄 생성 관련 변수
 special_bomb_timer = 0  # 마지막 특수 폭탄 생성 시점
+potion_spawn_timer = 0
 
 # 게임 객체 초기화
 # 게임 객체 초기화
@@ -93,11 +95,20 @@ def spawn_monsters(count, player, camera):
         game_world.add_object(monster, 1)  # 게임 월드에 추가
         game_world.add_collision_pair('player:monster', player, monster)
 
+
+
 def spawn_bomb(camera, is_special=False):
     bomb = Bomb(camera, is_special=is_special)
     game_world.add_object(bomb, 1)  # 게임 월드에 폭탄 추가
     game_world.add_collision_pair('player:bomb', player, bomb)
    # print(f"{'Special ' if is_special else ''}Bomb spawned at ({bomb.x}, {bomb.y})")
+
+def spawn_potion(camera):
+    x = random.randint(0, MAP_WIDTH)
+    y = random.randint(0, MAP_HEIGHT)
+    potion = Potion(x, y, camera)
+    game_world.add_object(potion, 1)  # 레이어 1에 포션 추가
+    game_world.add_collision_pair('player:potion', player, potion)
 
 
 
@@ -164,7 +175,8 @@ def handle_events():
 
 # 게임 업데이트 로직
 def update():
-    global spawn_timer, spawn_count, bomb_spawn_timer, special_bomb_timer, bomb_effects, spawn_interval
+    global spawn_timer, spawn_count, bomb_spawn_timer, \
+        special_bomb_timer, bomb_effects, spawn_interval, potion_spawn_timer
 
     # 현재 시간 가져오기
     current_time = get_time()
@@ -201,6 +213,11 @@ def update():
     for timer in monster_removal_timers[:]:
         if timer.update(0.016):  # 매 프레임 0.016초씩 추가
             monster_removal_timers.remove(timer)
+
+    # 포션 생성
+    if current_time > potion_spawn_timer + 15.0:  # 20초마다 생성
+        potion_spawn_timer = current_time
+        spawn_potion(camera)
 
     # 플레이어 HP가 0 이하가 되면 lose_mode로 전환
     if player.hp <= 0:
