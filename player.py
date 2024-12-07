@@ -149,7 +149,7 @@ class Player:
     def handle_collision(self, group, other):
         if group == "player:monster":
             self.hp -= 0.03
-          # print("Player collided with a Monster!")
+            print("Player collided with a Monster!")
             # 몬스터 충돌 처리 로직 추가
 
         if group == "player:bomb":

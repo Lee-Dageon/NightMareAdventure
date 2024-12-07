@@ -8,12 +8,13 @@ from player import Player
 from monster import Monster
 from bomb import Bomb
 import random
+import lose_mode
 
 # 초기화
 WIDTH, HEIGHT = 800, 600
 MAP_WIDTH, MAP_HEIGHT = 1600, 1200
 click_position = None  # 마우스 클릭 위치
-bomb_count = 10  # 플레이어가 수집한 폭탄의 수
+bomb_count = 0  # 플레이어가 수집한 폭탄의 수
 
 # 스폰 관련 변수
 spawn_timer = 0  # 마지막 몬스터 스폰 시점
@@ -27,8 +28,11 @@ bomb_spawn_interval = 1.5  # 폭탄 생성 간격 (초)
 special_bomb_timer = 0  # 마지막 특수 폭탄 생성 시점
 
 # 게임 객체 초기화
+# 게임 객체 초기화
 def init():
-    global player, monsters, bombs, camera, background,range_image, bomb_count, health_bar_image
+    global player, monsters, bombs, camera, background, range_image, health_bar_image
+    global bomb_count, spawn_timer, spawn_interval, spawn_count
+    global bomb_spawn_timer, special_bomb_timer, monster_removal_timers, bomb_effects
 
     open_canvas(WIDTH, HEIGHT)
 
@@ -37,17 +41,35 @@ def init():
     range_image = load_image("./Art/Mouse/Mouse InRange.png")  # "InRange.png" 로드
     health_bar_image = load_image('./Art/HUD/Health bar Temp.png')  # Health bar 이미지 로드
 
+    # 모든 게임 월드 객체 삭제 및 충돌 데이터 초기화
+    game_world.clear()
+
     # 카메라 생성
     camera = Camera(MAP_WIDTH, MAP_HEIGHT)
 
-    # 게임 객체 생성
+    # 플레이어 생성 및 초기화
     player = Player(800, 600, camera)  # 초기 위치
     game_world.add_object(player, 1)  # 레이어 1에 추가
+
+    # 몬스터와 폭탄 리스트 초기화
     monsters = []
     bombs = []
 
+    # 몬스터 및 폭탄 관련 변수 초기화
+    bomb_count = 0  # 초기 폭탄 개수
+    spawn_timer = 0  # 마지막 몬스터 스폰 시점
+    spawn_interval = 5.0  # 몬스터 스폰 간격
+    spawn_count = 10  # 처음 스폰되는 몬스터 수
+    bomb_spawn_timer = 0  # 마지막 폭탄 생성 시점
+    special_bomb_timer = 0  # 특수 폭탄 생성 타이머
+
+    # 폭발 효과 및 제거 타이머 초기화
+    monster_removal_timers = []
+    bomb_effects = []
+
     # 초기 몬스터 스폰
     spawn_monsters(spawn_count, player, camera)
+
 
 # 카메라 클래스 정의
 class Camera:
@@ -180,6 +202,10 @@ def update():
         if timer.update(0.016):  # 매 프레임 0.016초씩 추가
             monster_removal_timers.remove(timer)
 
+    # 플레이어 HP가 0 이하가 되면 lose_mode로 전환
+    if player.hp <= 0:
+        game_framework.change_mode(lose_mode)  # lose_mode로 바로 전환
+
     camera.update(player.x, player.y)
 
     # 모든 객체 업데이트
@@ -249,6 +275,7 @@ def draw():
 
 # 게임 종료
 def finish():
+    game_world.clear()  # 모든 게임 객체 정리
     close_canvas()
 
 # 게임 프레임워크가 사용하는 메소드 연결

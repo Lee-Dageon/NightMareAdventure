@@ -49,8 +49,13 @@ def remove_object(o):
 
 
 def clear():
+    global collision_pairs  # 충돌 데이터 초기화
     for layer in world:
+        for obj in layer[:]:  # 안전하게 모든 객체 제거
+            remove_object(obj)
         layer.clear()
+    collision_pairs = {}  # 충돌 데이터 초기화
+
 
 
 
