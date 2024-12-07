@@ -78,13 +78,19 @@ def draw_bounding_box(obj, camera_x, camera_y):
     draw_rectangle(left - camera_x, bottom - camera_y, right - camera_x, top - camera_y)
 
 def handle_bomb_explosion(x, y):
+    world_x = x + camera.x
+    world_y = y + camera.y
+
+   # print(f"Explosion World Position: ({world_x}, {world_y})")  # 디버깅용 출력
+
     for obj in game_world.world[1]:
-        if hasattr(obj, 'tag') and obj.tag == "m":  # 태그로 몬스터 구분
-            distance = ((obj.x - x) ** 2 + (obj.y - y) ** 2) ** 0.5
-            print(f"Distance to monster: {distance}")
-            if distance <= 2000:
-                print(f"Removing monster at ({obj.x}, {obj.y})")
+        if hasattr(obj, 'tag') and obj.tag == "m":
+            distance = ((obj.x - world_x) ** 2 + (obj.y - world_y) ** 2) ** 0.5
+            if distance <= 500:  # 반경 조건
+               # print(f"Removing monster at ({obj.x}, {obj.y}) with Distance: {distance}")
                 game_world.remove_object(obj)
+
+
 
 
 
