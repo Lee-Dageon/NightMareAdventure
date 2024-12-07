@@ -4,13 +4,11 @@ import math
 
 class Monster:
     def __init__(self, x, y, player, camera):
-        # 이미지 파일 목록에서 랜덤으로 하나 선택
-        image_paths = [
-            './Art/Enemies/white_enemy.png',
-            './Art/Enemies/green_enemy.png'
-        ]
-        selected_image = random.choice(image_paths)
-        self.image = load_image(selected_image)  # 랜덤 이미지 로드
+        self.type = random.choice(["white", "green"])  # 몬스터 타입 선택
+        if self.type == "white":
+            self.image = load_image('./Art/Enemies/white_enemy.png')
+        else:
+            self.image = load_image('./Art/Enemies/green_enemy.png')
         self.x, self.y = x, y
         self.speed = random.uniform(0.5, 1.0)
         self.player = player  # 플레이어 객체 참조

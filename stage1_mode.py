@@ -2,6 +2,7 @@
 from pico2d import *
 import game_framework
 import game_world
+from bomb_effect import BombEffect
 from player import Player
 from monster import Monster
 from bomb import Bomb
@@ -77,41 +78,6 @@ def draw_bounding_box(obj, camera_x, camera_y):
     left, bottom, right, top = obj.get_bb()
     draw_rectangle(left - camera_x, bottom - camera_y, right - camera_x, top - camera_y)
 
-class BombEffect:
-    def __init__(self, x, y, camera):
-        self.image = load_image('./Art/Items/bomb_effect.png')  # 1행 7열 스프라이트 이미지 로드
-        self.x, self.y = x, y  # 폭발 효과 위치
-        self.camera = camera  # 카메라 참조
-        self.frame = 0  # 현재 프레임
-        self.finished = False  # 애니메이션 완료 여부
-        self.frame_time = 0.0  # 프레임 시간 지연
-
-    def update(self):
-        # 프레임 시간 계산
-        self.frame_time += 0.016  # 약 60 FPS 기준
-        if self.frame_time >= 0.1:  # 0.1초마다 다음 프레임으로 변경
-            self.frame += 1
-            self.frame_time = 0.0  # 시간 초기화
-
-            if self.frame >= 7:  # 7프레임까지 출력되면 완료
-                self.finished = True
-
-    def draw(self):
-        if not self.finished:
-            sprite_width = self.image.w // 7  # 7열이므로 너비를 7로 나눔
-            sprite_height = self.image.h  # 1행이므로 전체 높이 사용
-
-            # 크기를 2배로 확대
-            draw_width = sprite_width * 2
-            draw_height = sprite_height * 2
-
-            # 카메라 보정을 적용하여 스프라이트 출력
-            self.image.clip_draw(
-                self.frame * sprite_width - 20, 0, sprite_width, sprite_height,
-                self.x - self.camera.x, self.y - self.camera.y,
-                draw_width, draw_height  # 확대된 크기로 출력
-            )
-
 # 폭발 효과 리스트
 bomb_effects = []
 
@@ -121,17 +87,21 @@ def handle_bomb_explosion(x, y):
     world_x = x + camera.x
     world_y = y + camera.y
 
-    # 폭발 효과 추가
-    bomb_effects.append(BombEffect(world_x, world_y, camera))
-
    # print(f"Explosion World Position: ({world_x}, {world_y})")  # 디버깅용 출력
 
     for obj in game_world.world[1]:
         if hasattr(obj, 'tag') and obj.tag == "m":
             distance = ((obj.x - world_x) ** 2 + (obj.y - world_y) ** 2) ** 0.5
-            if distance <= 200:  # 반경 조건
+            if distance <= 300:  # 반경 조건
                # print(f"Removing monster at ({obj.x}, {obj.y}) with Distance: {distance}")
-                game_world.remove_object(obj)
+               # 사망 위치에 GreenBombEffect 추가
+               # 몬스터 타입에 따라 폭발 효과 결정
+               if obj.type == "white":
+                   bomb_effects.append(BombEffect(obj.x, obj.y, camera, effect_type="green"))
+               else:
+                   bomb_effects.append(BombEffect(obj.x, obj.y, camera, effect_type="red"))
+
+               game_world.remove_object(obj)
 
 def handle_events():
     global player, click_position, bomb_count
@@ -159,7 +129,7 @@ def handle_events():
 
 # 게임 업데이트 로직
 def update():
-    global spawn_timer, spawn_count, bomb_spawn_timer, bomb_effects
+    global spawn_timer, spawn_count, bomb_spawn_timer, bomb_effects, green_bomb_effects
 
     # 현재 시간 가져오기
     current_time = get_time()
@@ -204,16 +174,13 @@ def draw_bomb_count():
 
 
 
-
-
 # 화면 그리기
 def draw():
     clear_canvas()
 
-
-
     # 배경 이미지 그리기
     background.draw_to_origin(-camera.x, -camera.y, MAP_WIDTH, MAP_HEIGHT)
+
     # 게임 월드의 모든 객체 렌더링
     game_world.render()
 
@@ -223,6 +190,7 @@ def draw():
     # 폭발 효과 그리기
     for effect in bomb_effects:
         effect.draw()
+
 
     # 마우스 클릭 이미지 그리기
     if click_position:
