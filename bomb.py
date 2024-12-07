@@ -47,8 +47,12 @@ class Bomb:
         draw_rectangle(left - camera_x, bottom - camera_y, right - camera_x, top - camera_y)
 
     def get_bb(self):
-        # 충돌 박스 반환 (폭탄 크기 기준)
-        width, height = 40, 50
+        # 충돌 박스 크기 조정
+        if self.is_special:
+            width, height = 60, 90  # 특수 폭탄의 충돌 박스 크기
+        else:
+            width, height = 40, 80  # 일반 폭탄의 충돌 박스 크기
+
         return self.x - width // 2, self.y - height // 2, self.x + width // 2, self.y + height // 2
 
     def handle_collision(self, group, other):
