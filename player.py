@@ -71,6 +71,18 @@ class Player:
         self.frame_time = 0  # 프레임 갱신을 위한 시간 계산
         self.scale = 1.5  # 캐릭터 크기를 조정하는 배율
 
+        # 체력 관련 속성
+        self.max_hp = 100  # 최대 체력
+        self.hp = self.max_hp  # 현재 체력
+
+    def take_damage(self, amount):
+        """체력을 감소시키는 메서드"""
+        self.hp = max(0, self.hp - amount)  # 최소 0으로 제한
+
+    def heal(self, amount):
+        """체력을 회복시키는 메서드"""
+        self.hp = min(self.max_hp, self.hp + amount)  # 최대 체력으로 제한
+
     def change_state(self, new_state):
         """상태 전환 메서드"""
         self.state.exit(self)
@@ -136,7 +148,7 @@ class Player:
 
     def handle_collision(self, group, other):
         if group == "player:monster":
-            pass
+            self.hp -= 0.03
           # print("Player collided with a Monster!")
             # 몬스터 충돌 처리 로직 추가
 

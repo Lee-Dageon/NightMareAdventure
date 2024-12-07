@@ -28,13 +28,15 @@ special_bomb_timer = 0  # 마지막 특수 폭탄 생성 시점
 
 # 게임 객체 초기화
 def init():
-    global player, monsters, bombs, camera, background,range_image, bomb_count
+    global player, monsters, bombs, camera, background,range_image, bomb_count, health_bar_image
 
     open_canvas(WIDTH, HEIGHT)
 
     # 배경 이미지 로드
     background = load_image('./assets/gamebackground.png')
     range_image = load_image("./Art/Mouse/Mouse InRange.png")  # "InRange.png" 로드
+    health_bar_image = load_image('./Art/HUD/Health bar Temp.png')  # Health bar 이미지 로드
+
     # 카메라 생성
     camera = Camera(MAP_WIDTH, MAP_HEIGHT)
 
@@ -213,6 +215,24 @@ def draw():
 
     # 폭탄 개수 그리기
     draw_bomb_count()
+
+    # Health Bar 이미지 그리기
+    health_bar_image.draw(130, 530)  # 적절한 위치에 출력 (좌표 조정 가능)
+
+    # Health Bar 내부에 체력 비례한 크기로 이미지 출력
+    max_bar_width = 200  # Health Bar의 최대 길이
+    current_hp_width = max_bar_width * (player.hp / 105)  # 현재 HP에 비례한 길이 계산
+    left = 50  # Health Bar 왼쪽 X 좌표
+    bottom = 520  # Health Bar 아래쪽 Y 좌표
+    bar_center_x = left + current_hp_width / 2  # Health Bar 중심 X 좌표
+    bar_height = 20  # Health Bar 높이
+
+    # 체력 게이지 이미지 로드 (health_bar_rectangle.png)
+    health_fill_image = load_image('./Art/HUD/Health Bar rectangle.png')
+
+    # 현재 HP에 맞춰 크기 조정 후 출력
+    health_fill_image.draw(bar_center_x, bottom + bar_height / 2, current_hp_width, bar_height)
+
 
     # 폭발 효과 그리기
     for effect in bomb_effects:
