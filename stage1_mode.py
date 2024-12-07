@@ -50,6 +50,9 @@ class Camera:
         self.width = width
         self.height = height
 
+        self.mouse_x = 0  # 마우스 X 좌표 초기화
+        self.mouse_y = 0  # 마우스 Y 좌표 초기화
+
     def update(self, target_x, target_y):
         self.x = max(0, min(target_x - WIDTH // 2, self.width - WIDTH))
         self.y = max(0, min(target_y - HEIGHT // 2, self.height - HEIGHT))

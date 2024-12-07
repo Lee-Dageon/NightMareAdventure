@@ -52,7 +52,7 @@ class Move:
 
 class Player:
     def __init__(self, x, y, camera):
-        self.image = load_image('./Art/Character/Player Secondary Attack frame 1.png')
+        self.image = load_image('./Art/Character/main_player.png')
         self.x, self.y = x, y
         self.speed = 8
         self.angle = 0  # 플레이어의 회전 각도
@@ -61,6 +61,11 @@ class Player:
 
         self.key_states = {}  # 키 입력 상태를 저장
         self.camera = camera  # 카메라 객체를 참조
+
+        # 애니메이션 속성 초기화
+        self.frame = 0  # 현재 프레임
+        self.frame_time = 0  # 프레임 갱신을 위한 시간 계산
+        self.scale = 1.5  # 캐릭터 크기를 조정하는 배율
 
     def change_state(self, new_state):
         """상태 전환 메서드"""
@@ -77,11 +82,44 @@ class Player:
         dy = mouse_y + self.camera.y - self.y
         self.angle = math.atan2(dy, dx)
 
+        # 프레임 애니메이션 업데이트
+        self.frame_time += 1
+        if self.frame_time >= 5:  # 5틱마다 프레임 변경 (애니메이션 속도 조정 가능)
+            self.frame = (self.frame + 1) % 3
+            self.frame_time = 0
+
+
 
     def draw(self):
         # 플레이어 이미지를 카메라 보정 좌표에 따라 회전하며 그리기
         camera_x, camera_y = self.camera.x, self.camera.y
-        self.image.rotate_draw(self.angle, self.x - self.camera.x, self.y - self.camera.y)
+
+        # 각도에 따라 행 계산
+        degree = math.degrees(self.angle)
+        if -45 <= degree < 45:
+            row = 2  # 오른쪽
+        elif 45 <= degree < 135:
+            row = 3  # 위쪽
+        elif 135 <= degree or degree < -135:
+            row = 1  # 왼쪽
+        elif -135 <= degree < -45:
+            row = 0  # 아래쪽
+
+        # 스프라이트 크기 및 위치 계산
+        sprite_width = self.image.w // 3
+        sprite_height = self.image.h // 4
+
+        # 확대된 크기
+        scaled_width = sprite_width * self.scale
+        scaled_height = sprite_height * self.scale
+
+        # 그리기
+        self.image.clip_draw(
+            self.frame * sprite_width, (3 - row) * sprite_height,
+            sprite_width, sprite_height,
+            self.x - camera_x, self.y - camera_y,
+            scaled_width, scaled_height  # 키운 크기로 출력
+        )
 
         # 충돌 박스도 카메라 보정 후 그리기
         left, bottom, right, top = self.get_bb()
