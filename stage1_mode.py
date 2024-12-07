@@ -3,6 +3,7 @@ from pico2d import *
 import game_framework
 import game_world
 from bomb_effect import BombEffect
+from monster_removal_timer import MonsterRemovalTimer
 from player import Player
 from monster import Monster
 from bomb import Bomb
@@ -78,6 +79,9 @@ def draw_bounding_box(obj, camera_x, camera_y):
     left, bottom, right, top = obj.get_bb()
     draw_rectangle(left - camera_x, bottom - camera_y, right - camera_x, top - camera_y)
 
+
+# 몬스터 제거 타이머 리스트
+monster_removal_timers = []
 # 폭발 효과 리스트
 bomb_effects = []
 
@@ -92,16 +96,20 @@ def handle_bomb_explosion(x, y):
     for obj in game_world.world[1]:
         if hasattr(obj, 'tag') and obj.tag == "m":
             distance = ((obj.x - world_x) ** 2 + (obj.y - world_y) ** 2) ** 0.5
+            delay = distance * 0.002  # 거리 비례 딜레이 (조정 가능)
             if distance <= 300:  # 반경 조건
                # print(f"Removing monster at ({obj.x}, {obj.y}) with Distance: {distance}")
                # 사망 위치에 GreenBombEffect 추가
                # 몬스터 타입에 따라 폭발 효과 결정
-               if obj.type == "white":
-                   bomb_effects.append(BombEffect(obj.x, obj.y, camera, effect_type="green"))
+               if obj.type == "green":
+                   bomb_effects.append(BombEffect(obj.x, obj.y, camera, effect_type="green", delay=delay))
                else:
-                   bomb_effects.append(BombEffect(obj.x, obj.y, camera, effect_type="red"))
+                   bomb_effects.append(BombEffect(obj.x, obj.y, camera, effect_type="red", delay=delay))
 
-               game_world.remove_object(obj)
+               # 몬스터 제거 타이머 추가
+               monster_removal_timers.append(MonsterRemovalTimer(obj, delay))
+
+
 
 def handle_events():
     global player, click_position, bomb_count
@@ -129,7 +137,7 @@ def handle_events():
 
 # 게임 업데이트 로직
 def update():
-    global spawn_timer, spawn_count, bomb_spawn_timer, bomb_effects, green_bomb_effects
+    global spawn_timer, spawn_count, bomb_spawn_timer, bomb_effects
 
     # 현재 시간 가져오기
     current_time = get_time()
@@ -146,10 +154,16 @@ def update():
         spawn_bomb(camera)  # 폭탄 생성
 
     # 폭발 효과 업데이트 및 제거
+    elapsed_time = 0.016  # 60FPS 기준 프레임 간 시간
     for effect in bomb_effects[:]:
-        effect.update()
+        effect.update(elapsed_time)
         if effect.finished:  # 애니메이션이 끝난 효과 제거
             bomb_effects.remove(effect)
+
+    # 몬스터 제거 타이머 업데이트 및 제거
+    for timer in monster_removal_timers[:]:
+        if timer.update(0.016):  # 매 프레임 0.016초씩 추가
+            monster_removal_timers.remove(timer)
 
     camera.update(player.x, player.y)
 

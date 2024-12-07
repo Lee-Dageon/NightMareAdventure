@@ -4,9 +4,9 @@ import math
 
 class Monster:
     def __init__(self, x, y, player, camera):
-        self.type = random.choice(["white", "green"])  # 몬스터 타입 선택
-        if self.type == "white":
-            self.image = load_image('./Art/Enemies/white_enemy.png')
+        self.type = random.choice(["red", "green"])  # 몬스터 타입 선택
+        if self.type == "red":
+            self.image = load_image('./Art/Enemies/red_enemy.png')
         else:
             self.image = load_image('./Art/Enemies/green_enemy.png')
         self.x, self.y = x, y
