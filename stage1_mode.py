@@ -112,7 +112,6 @@ class BombEffect:
                 draw_width, draw_height  # 확대된 크기로 출력
             )
 
-
 # 폭발 효과 리스트
 bomb_effects = []
 
@@ -130,7 +129,7 @@ def handle_bomb_explosion(x, y):
     for obj in game_world.world[1]:
         if hasattr(obj, 'tag') and obj.tag == "m":
             distance = ((obj.x - world_x) ** 2 + (obj.y - world_y) ** 2) ** 0.5
-            if distance <= 300:  # 반경 조건
+            if distance <= 200:  # 반경 조건
                # print(f"Removing monster at ({obj.x}, {obj.y}) with Distance: {distance}")
                 game_world.remove_object(obj)
 
