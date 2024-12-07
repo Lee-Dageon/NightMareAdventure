@@ -30,11 +30,16 @@ class Bomb:
         sprite_width = self.image.w // 2  # 2열이므로 너비를 2로 나눔
         sprite_height = self.image.h  # 1행이므로 전체 높이 사용
 
-        # 스프라이트를 2배로 확대하여 그리기
+        # 크기를 2배로 확대 (특수 폭탄일 경우 3배로 확대)
+        scale_multiplier = 3 if self.is_special else 2
+        draw_width = sprite_width * scale_multiplier
+        draw_height = sprite_height * scale_multiplier
+
+        # 스프라이트 출력
         self.image.clip_draw(
             self.frame * sprite_width, 0, sprite_width, sprite_height,
             self.x - camera_x, self.y - camera_y,
-            sprite_width * 2, sprite_height * 2  # 2배 크기로 출력
+            draw_width, draw_height  # 크기 조정 후 출력
         )
 
         # 충돌 박스도 카메라 보정 후 그리기
