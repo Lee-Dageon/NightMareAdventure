@@ -90,10 +90,6 @@ def handle_bomb_explosion(x, y):
                # print(f"Removing monster at ({obj.x}, {obj.y}) with Distance: {distance}")
                 game_world.remove_object(obj)
 
-
-
-
-
 def handle_events():
     global player, click_position, bomb_count
     events = get_events()
