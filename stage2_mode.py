@@ -11,8 +11,6 @@ def update():
     base_stage.update()  # 기본 업데이트 로직 실행
     base_stage.spawn_key()  # Key 생성
 
-
-
 def draw():
     base_stage.draw()  # 기본 그리기 로직 실행
 

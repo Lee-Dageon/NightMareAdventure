@@ -43,8 +43,18 @@ def init():
 
     open_canvas(WIDTH, HEIGHT)
 
+    # 현재 모드를 확인하여 배경 이미지 설정
+    current_mode = game_framework.stack[-1].__name__
+    if current_mode == "stage1_mode":
+        background_path = './assets/gamebackground.png'
+    elif current_mode == "stage2_mode":
+        background_path = './assets/gamebackground_2.png'
+    else:
+        background_path = './assets/gamebackground.png'  # 기본 배경 이미지
+
     # 배경 이미지 로드
-    background = load_image('./assets/gamebackground.png')
+    background = load_image(background_path)
+    print(f"[DEBUG] Background Loaded: {background_path}")
     range_image = load_image("./Art/Mouse/Mouse InRange.png")  # "InRange.png" 로드
     health_bar_image = load_image('./Art/HUD/Health bar Temp.png')  # Health bar 이미지 로드
 
