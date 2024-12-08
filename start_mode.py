@@ -1,6 +1,7 @@
 from pico2d import *
 from pico2d import clear_canvas, update_canvas, get_events, load_image
 
+import enter_stage1
 import game_framework
 import stage1_mode  # 게임 시작 시 이동할 모드
 
@@ -27,7 +28,7 @@ def handle_events():
             exit_game()
         elif event.type == SDL_KEYDOWN:
             if event.key == SDLK_SPACE:  # 스페이스바로 게임 시작
-                game_framework.change_mode(stage1_mode)
+                game_framework.change_mode(enter_stage1)
             elif event.key == SDLK_ESCAPE:  # ESC 키로 게임 종료
                 exit_game()
 

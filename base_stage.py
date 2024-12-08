@@ -3,6 +3,7 @@ from pico2d import *
 import game_framework
 import game_world
 import key
+import lose_mode_stage2
 from bomb_effect import BombEffect
 from key import Key
 from monster_removal_timer import MonsterRemovalTimer
@@ -10,7 +11,7 @@ from player import Player
 from monster import Monster
 from bomb import Bomb
 import random
-import lose_mode
+import lose_mode_stage1
 from potion import Potion
 
 # 초기화
@@ -242,9 +243,16 @@ def update():
         potion_spawn_timer = current_time
         spawn_potion(camera)
 
-    # 플레이어 HP가 0 이하가 되면 lose_mode로 전환
     if player.hp <= 0:
-        game_framework.change_mode(lose_mode)  # lose_mode로 바로 전환
+            # 현재 게임 모드에 따라 다음 모드로 전환
+            if game_framework.stack[-1].__name__ == 'stage1_mode':
+                game_framework.change_mode(lose_mode_stage1)
+                print(f"Current mode: {game_framework.stack[-1].__name__}")  # 디버깅 메시지
+
+            elif game_framework.stack[-1].__name__ == 'stage2_mode':
+                import win_mode  # Import win_mode 모드
+                game_framework.change_mode(lose_mode_stage2)
+
 
     camera.update(player.x, player.y)
 

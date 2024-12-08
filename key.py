@@ -55,8 +55,8 @@ class Key:
             # 현재 게임 모드에 따라 다음 모드로 전환
             if game_framework.stack[-1].__name__ == 'stage1_mode':
                 print("Moving to Stage 2")
-                import stage2_mode  # Import stage2_mode 모드
-                game_framework.change_mode(stage2_mode)
+                import enter_stage2  # Import stage2_mode 모드
+                game_framework.change_mode(enter_stage2)
                 print(f"Current mode: {game_framework.stack[-1].__name__}")  # 디버깅 메시지
 
             elif game_framework.stack[-1].__name__ == 'stage2_mode':

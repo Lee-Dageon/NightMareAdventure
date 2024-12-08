@@ -1,5 +1,7 @@
 from pico2d import get_time
 import base_stage
+import game_framework
+import lose_mode_stage2
 
 def init():
     global key_collected, key_display_time, key_spawned
