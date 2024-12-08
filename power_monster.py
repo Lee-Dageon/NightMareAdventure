@@ -19,6 +19,10 @@ class PowerMonster:
         self.tag = "m"  # 태그 추가
         self.type = "gray"
 
+        # 사운드 로드
+        self.bomb_sound = load_wav('./assets/sound/bomb.wav')  # 폭탄 사운드 파일 경로
+        self.bomb_sound.set_volume(64)  # 볼륨 설정 (0 ~ 128)
+
     def update(self):
         """플레이어를 추적하는 로직"""
         dx, dy = self.player.x - self.x, self.player.y - self.y
@@ -71,10 +75,6 @@ class PowerMonster:
             scaled_width, scaled_height
         )
 
-        # 충돌 박스도 카메라 보정 후 그리기
-        left, bottom, right, top = self.get_bb()
-       # draw_rectangle(left - camera_x, bottom - camera_y, right - camera_x, top - camera_y)
-
     def get_bb(self):
         """충돌 박스 반환"""
         return self.x - self.width // 2, self.y - self.height // 1.7, self.x + self.width // 2, self.y + self.height // 1.7
@@ -87,5 +87,9 @@ class PowerMonster:
         elif group == "bomb:power_monster":
             self.hp -= 1  # 폭탄에 맞을 경우 체력 감소
             if self.hp <= 0:
-                game_world.remove_object(self)  # 체력이 0 이하가 되면 몬스터 제거
+                # 폭탄 사운드 재생
+                self.bomb_sound.play()
+
+                # 체력이 0 이하가 되면 몬스터 제거d
+                game_world.remove_object(self)
                 print("[DEBUG] PowerMonster killed!")

@@ -1,12 +1,19 @@
-from pico2d import get_time
+from pico2d import get_time, load_music
 import base_stage
 import game_framework
-import lose_mode_stage2
+
+# stage2 전용 배경음악 변수
+stage2_music = None
 
 def init():
+    global stage2_music
     base_stage.init()  # Base 스테이지 초기화
 
-# stage2_mode 업데이트에서 Power Monster 스폰
+    # 배경음악 로드 및 재생
+    stage2_music = load_music('./assets/Music/stage_2.mp3')  # Stage 2
+    stage2_music.set_volume(30)  # 볼륨 설정 (0~128)
+    stage2_music.repeat_play()  # 반복 재생
+
 def update():
     base_stage.update()
 

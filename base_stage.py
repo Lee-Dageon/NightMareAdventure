@@ -1,4 +1,3 @@
-# base_stage.py
 from pico2d import *
 import game_framework
 import game_world
@@ -15,13 +14,18 @@ import lose_mode_stage1
 from potion import Potion
 from power_monster import PowerMonster
 
+# 폭탄 사운드 로드
+bomb_sound = None
+potion_sound = None  # 포션 사운드 추가
+
+
 # 초기화
 WIDTH, HEIGHT = 800, 600
 MAP_WIDTH, MAP_HEIGHT = 1600, 1200
 click_position = None  # 마우스 클릭 위치
 bomb_count = 0  # 플레이어가 수집한 폭탄의 수
 
-key_collected = False  # Key 획득 여
+key_collected = False  # Key 획득 여부
 
 # 스폰 관련 변수
 spawn_timer = 0  # 마지막 몬스터 스폰 시점
@@ -31,19 +35,24 @@ spawn_count = 10  # 처음 스폰되는 몬스터 수
 # 폭탄 생성 관련 변수
 bomb_spawn_timer = 0  # 마지막 폭탄 생성 시점
 bomb_spawn_interval = 1.5  # 폭탄 생성 간격 (초)
-# 폭탄 생성 관련 변수
 special_bomb_timer = 0  # 마지막 특수 폭탄 생성 시점
 potion_spawn_timer = 0
 power_monster_spawn_timer = 1.0
 
-# 게임 객체 초기화
-# 게임 객체 초기화
 def init():
     global player, monsters, bombs, camera, background, range_image, health_bar_image
     global bomb_count, spawn_timer, spawn_interval, spawn_count, current_time, key_display_time
-    global bomb_spawn_timer, special_bomb_timer, monster_removal_timers, bomb_effects, key_collected, key_spawned
+    global bomb_spawn_timer, special_bomb_timer, monster_removal_timers, bomb_effects, key_collected, key_spawned, bomb_sound
 
     open_canvas(WIDTH, HEIGHT)
+
+    # 폭탄 터지는 사운드 로드
+    bomb_sound = load_wav('./assets/sound/bomb.wav')  # 폭탄 사운드
+    bomb_sound.set_volume(64)  # 볼륨 조절 (0 ~ 128)
+
+    # 포션 획득 사운드 로드
+    potion_sound = load_wav('./assets/sound/potion.wav')  # 포션 사운드
+    potion_sound.set_volume(64)  # 볼륨 조절 (0 ~ 128)
 
     # 현재 모드를 확인하여 배경 이미지 설정
     current_mode = game_framework.stack[-1].__name__
@@ -82,6 +91,7 @@ def init():
     # 스테이지 시작 시 Key 표시 시간 초기화
     key_display_time = 200  # 현재 시간 + 3분
 
+    # 폭발 효과 및 제거 타이머 초기화
     # 폭발 효과 및 제거 타이머 초기화
     monster_removal_timers = []
     bomb_effects = []
@@ -170,31 +180,24 @@ monster_removal_timers = []
 bomb_effects = []
 
 def handle_bomb_explosion(x, y):
-    global bomb_effects
+    global bomb_effects, bomb_sound
 
     world_x = x + camera.x
     world_y = y + camera.y
 
-   # print(f"Explosion World Position: ({world_x}, {world_y})")  # 디버깅용 출력
 
     for obj in game_world.world[1]:
         if hasattr(obj, 'tag') and obj.tag == "m":
             distance = ((obj.x - world_x) ** 2 + (obj.y - world_y) ** 2) ** 0.5
             delay = distance * 0.002  # 거리 비례 딜레이 (조정 가능)
             if distance <= 300:  # 반경 조건
-               # print(f"Removing monster at ({obj.x}, {obj.y}) with Distance: {distance}")
-               # 사망 위치에 GreenBombEffect 추가
-               # 몬스터 타입에 따라 폭발 효과 결정
-               if obj.type == "green":
-                   bomb_effects.append(BombEffect(obj.x, obj.y, camera, effect_type="green", delay=delay))
-               elif obj.type == "red":
-                   bomb_effects.append(BombEffect(obj.x, obj.y, camera, effect_type="red", delay=delay))
-               else:
-                   bomb_effects.append(BombEffect(obj.x, obj.y, camera, effect_type="gray", delay=delay))
-
-
-               # 몬스터 제거 타이머 추가
-               monster_removal_timers.append(MonsterRemovalTimer(obj, delay))
+                if obj.type == "green":
+                    bomb_effects.append(BombEffect(obj.x, obj.y, camera, effect_type="green", delay=delay))
+                elif obj.type == "red":
+                    bomb_effects.append(BombEffect(obj.x, obj.y, camera, effect_type="red", delay=delay))
+                else:
+                    bomb_effects.append(BombEffect(obj.x, obj.y, camera, effect_type="gray", delay=delay))
+                monster_removal_timers.append(MonsterRemovalTimer(obj, delay))
 
 
 
@@ -277,6 +280,9 @@ def update():
     for timer in monster_removal_timers[:]:
         if timer.update(0.016):  # 매 프레임 0.016초씩 추가
             monster_removal_timers.remove(timer)
+            if bomb_sound:
+                bomb_sound.play()
+
 
     # 포션 생성
     if current_time > potion_spawn_timer + (8.0 if game_framework.stack[-1].__name__ == 'stage2_mode' else 15.0):
