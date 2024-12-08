@@ -18,6 +18,7 @@ class Monster:
         # 애니메이션 속성
         self.frame = 0  # 현재 프레임
         self.frame_time = 0  # 프레임 갱신 타이밍
+        self.angle = 0
 
 
     def update(self):

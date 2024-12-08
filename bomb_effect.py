@@ -32,8 +32,8 @@ class BombEffect:
         if not self.finished and self.time_since_spawn >= self.delay:
             sprite_width = self.image.w // 7  # 7열이므로 너비를 7로 나눔
             sprite_height = self.image.h  # 1행이므로 전체 높이 사용
-            draw_width = sprite_width * 1
-            draw_height = sprite_height * 1
+            draw_width = sprite_width * 1.8
+            draw_height = sprite_height * 1.8
 
             # 카메라 보정을 적용하여 스프라이트 출력
             self.image.clip_draw(
