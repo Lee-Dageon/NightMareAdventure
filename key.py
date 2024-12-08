@@ -10,7 +10,7 @@ class Key:
     def __init__(self, x, y, camera):
         self.image = load_image('./Art/Items/key.png')  # Key 이미지 로드
         self.x, self.y = x, y
-        self.width, self.height = 150, 150  # Key의 크기
+        self.width, self.height = 120, 120  # Key의 크기
         self.tag = "key"  # 충돌 태그
 
         self.camera = camera  # 카메라 참조
@@ -57,6 +57,7 @@ class Key:
                 print("Moving to Stage 2")
                 import stage2_mode  # Import stage2_mode 모드
                 game_framework.change_mode(stage2_mode)
+                print(f"Current mode: {game_framework.stack[-1].__name__}")  # 디버깅 메시지
 
             elif game_framework.stack[-1].__name__ == 'stage2_mode':
                 print("Moving to Win Mode")

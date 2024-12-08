@@ -2,6 +2,7 @@ from pico2d import *
 import game_framework
 from pico2d import clear_canvas, update_canvas, get_events, load_image, get_time
 import base_stage  # 필요한 경우 import
+import stage1_mode
 import stage2_mode  # 필요한 경우 import
 
 
@@ -40,7 +41,7 @@ def handle_events():
         elif event.type == SDL_KEYDOWN and event.key == SDLK_r:  # R키로 재시작
             # 현재 스테이지에 따라 해당 스테이지로 돌아감
             if current_stage == "stage1":
-                game_framework.change_mode(base_stage)
+                game_framework.change_mode(stage1_mode)
             elif current_stage == "stage2":
                 game_framework.change_mode(stage2_mode)
 
