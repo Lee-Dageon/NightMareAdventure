@@ -46,7 +46,7 @@ class Bomb:
 
         # 충돌 박스도 카메라 보정 후 그리기
         left, bottom, right, top = self.get_bb()
-        draw_rectangle(left - camera_x, bottom - camera_y, right - camera_x, top - camera_y)
+       # draw_rectangle(left - camera_x, bottom - camera_y, right - camera_x, top - camera_y)
 
     def get_bb(self):
         # 충돌 박스 크기 조정

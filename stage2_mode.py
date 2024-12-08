@@ -6,10 +6,10 @@ import lose_mode_stage2
 def init():
     base_stage.init()  # Base 스테이지 초기화
 
+# stage2_mode 업데이트에서 Power Monster 스폰
 def update():
-    global key_spawned, key_collected, key_display_time
-    base_stage.update()  # 기본 업데이트 로직 실행
-    base_stage.spawn_key()  # Key 생성
+    base_stage.update()
+
 
 def draw():
     base_stage.draw()  # 기본 그리기 로직 실행

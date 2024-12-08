@@ -8,5 +8,6 @@ import lose_mode_stage1
 import stage1_mode
 import stage2_mode
 import start_mode
+import win_mode
 
-game_framework.run(stage2_mode)
+game_framework.run(start_mode)

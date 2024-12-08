@@ -19,7 +19,6 @@ def draw():
     win_image.draw_to_origin(0, 0, 800, 600)
     update_canvas()
 
-
 def handle_events():
     events = get_events()
     for event in events:
@@ -32,6 +31,8 @@ def handle_events():
                 import start_mode
                 game_framework.change_mode(start_mode)
 
-def exit():
+def finish():
     global win_image
     del win_image
+
+
