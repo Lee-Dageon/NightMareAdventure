@@ -69,7 +69,6 @@ def init():
     # 스테이지 시작 시 Key 표시 시간 초기화
     key_display_time = 200  # 현재 시간 + 3분
 
-
     # 폭발 효과 및 제거 타이머 초기화
     monster_removal_timers = []
     bomb_effects = []

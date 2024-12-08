@@ -1,4 +1,5 @@
 import base_stage
+import game_framework
 
 def init():
     base_stage.init()

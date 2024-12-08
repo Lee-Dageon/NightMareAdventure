@@ -28,9 +28,9 @@ def handle_events():
         elif event.type == SDL_KEYDOWN:
             if event.key == SDLK_ESCAPE:  # ESC 키로 게임 종료
                 exit()
-            elif event.key == SDLK_m:  # M 키로 메인 화면으로 이동
-                import main_mode
-                game_framework.change_mode(main_mode)
+            elif event.key == SDLK_SPACE:  # M 키로 메인 화면으로 이동
+                import start_mode
+                game_framework.change_mode(start_mode)
 
 def exit():
     global win_image
