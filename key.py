@@ -10,7 +10,7 @@ class Key:
     def __init__(self, x, y, camera):
         self.image = load_image('./Art/Items/key.png')  # Key 이미지 로드
         self.x, self.y = x, y
-        self.width, self.height = 120, 120  # Key의 크기
+        self.width, self.height = 150, 150  # Key의 크기
         self.tag = "key"  # 충돌 태그
 
         self.camera = camera  # 카메라 참조

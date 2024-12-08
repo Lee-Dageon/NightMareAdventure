@@ -53,6 +53,7 @@ def init():
 
     # 카메라 생성
     camera = Camera(MAP_WIDTH, MAP_HEIGHT)
+    current_time = 0
 
     # 플레이어 생성 및 초기화
     player = Player(800, 600, camera)  # 초기 위치
@@ -66,7 +67,6 @@ def init():
     bomb_spawn_timer = 0  # 마지막 폭탄 생성 시점
     special_bomb_timer = 0  # 특수 폭탄 생성 타이머
 
-    current_time = 0
     # 스테이지 시작 시 Key 표시 시간 초기화
     key_display_time = 200  # 현재 시간 + 3분
 
@@ -107,10 +107,10 @@ def spawn_monsters(count, player, camera):
 
 def spawn_key():
     """Key를 3분 후에 생성."""
-    global key_display_time, key_collected
+    global key_display_time, key_collected, key_spawned
 
     current_time = get_time()  # 현재 시간을 가져옴
-    if not key_collected and current_time >= key_display_time:
+    if not key_collected and not key_spawned and current_time >= key_display_time:
         # Key 생성
         x = random.randint(100, MAP_WIDTH - 100)  # Key 생성 위치
         y = random.randint(100, MAP_HEIGHT - 100)
@@ -118,7 +118,7 @@ def spawn_key():
         game_world.add_object(key_object, 1)  # Key를 게임 월드에 추가
         game_world.add_collision_pair('player:key', player, key_object)  # 충돌 처리
         print("Key spawned!")  # 디버깅용 메시지
-
+        key_spawned = True;
 
 
 def spawn_bomb(camera, is_special=False):
@@ -202,8 +202,7 @@ def update():
     global spawn_timer, spawn_count, bomb_spawn_timer, \
         special_bomb_timer, bomb_effects, spawn_interval, potion_spawn_timer
 
-    # 현재 시간 가져오기
-    current_time = get_time()
+    current_time = get_time()  # 현재 시간 가져오기
 
     # 몬스터 스폰 타이머 확인 및 호출
     if current_time > spawn_timer + spawn_interval:
@@ -261,6 +260,8 @@ def update():
 
     # 충돌 처리
     game_world.handle_collisions()
+
+    spawn_key()
 
     # 프레임 속도를 유지하기 위해 지연 추가
     delay(0.016)  # 약 60 FPS 유지
