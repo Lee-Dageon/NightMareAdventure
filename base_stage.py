@@ -30,7 +30,7 @@ key_collected = False  # Key 획득 여부
 # 스폰 관련 변수
 spawn_timer = 0  # 마지막 몬스터 스폰 시점
 spawn_interval = 5.0  # 몬스터 스폰 간격 (초)
-spawn_count = 10  # 처음 스폰되는 몬스터 수
+spawn_count = 20  # 처음 스폰되는 몬스터 수
 
 # 폭탄 생성 관련 변수
 bomb_spawn_timer = 0  # 마지막 폭탄 생성 시점
@@ -47,7 +47,7 @@ def init():
     global stage_start_time
 
     # 스테이지 시작 시 Key 표시 시간 초기화
-    key_display_time = 100  # 현재 시간 + 3분
+    key_display_time = 101  # 현재 시간 + 3분
 
     stage_start_time = get_time()  # 스테이지가 시작된 시점 기록
 
@@ -153,16 +153,16 @@ def spawn_bomb(camera, is_special=False):
    # print(f"{'Special ' if is_special else ''}Bomb spawned at ({bomb.x}, {bomb.y})")
 
 def spawn_potion(camera):
-    x = random.randint(0, MAP_WIDTH)
-    y = random.randint(0, MAP_HEIGHT)
+    x = random.randint(100, MAP_WIDTH-100)
+    y = random.randint(100, MAP_HEIGHT-100)
     potion = Potion(x, y, camera)
     game_world.add_object(potion, 1)  # 레이어 1에 포션 추가
     game_world.add_collision_pair('player:potion', player, potion)
 
 def spawn_power_monster(player, camera):
     """Power Monster 생성"""
-    x = random.randint(0, MAP_WIDTH)
-    y = random.randint(0, MAP_HEIGHT)
+    x = random.randint(100, MAP_WIDTH-100)
+    y = random.randint(100, MAP_HEIGHT-100)
     power_monster = PowerMonster(x, y, player, camera)
     game_world.add_object(power_monster, 1)  # 레이어 1에 추가
     game_world.add_collision_pair('player:power_monster', player, power_monster)  # 플레이어와 충돌 처리
@@ -272,7 +272,7 @@ def update():
     # 특수 폭탄 생성
     if game_framework.stack[-1].__name__ == "stage2_mode":
         # stage2에서는 5초마다 생성
-        if current_time > special_bomb_timer + 6.0:
+        if current_time > special_bomb_timer + 7.0:
             special_bomb_timer = current_time
             spawn_bomb(camera, is_special=True)
     else:
@@ -343,7 +343,7 @@ def draw_current_time():
         font = load_font('consola.ttf', 30)
 
     # 100에서 감소한 시간 계산
-    remaining_time = max(0, 100 - current_time)
+    remaining_time = max(0, 101 - current_time)
 
     font.draw(580, 570, f"Time: {remaining_time:.2f} s", (255, 255, 0))  # 좌상단에 초 단위로 출력
 
