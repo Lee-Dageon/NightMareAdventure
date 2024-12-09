@@ -11,8 +11,6 @@ background_music = None  # 배경음악 객체
 def init():
     global image, current_stage, background_music
 
-    open_canvas()
-
     current_mode = "stage2_mode"
 
     # 모드에 따라 current_stage 설정

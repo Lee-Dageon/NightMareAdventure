@@ -44,7 +44,6 @@ def init():
     global bomb_count, spawn_timer, spawn_interval, spawn_count, current_time, key_display_time
     global bomb_spawn_timer, special_bomb_timer, monster_removal_timers, bomb_effects, key_collected, key_spawned, bomb_sound
 
-    open_canvas(WIDTH, HEIGHT)
 
     # 폭탄 터지는 사운드 로드
     bomb_sound = load_wav('./assets/sound/bomb.wav')  # 폭탄 사운드
@@ -89,7 +88,7 @@ def init():
     special_bomb_timer = 0  # 특수 폭탄 생성 타이머
 
     # 스테이지 시작 시 Key 표시 시간 초기화
-    key_display_time = 200  # 현재 시간 + 3분
+    key_display_time = 3  # 현재 시간 + 3분
 
     # 폭발 효과 및 제거 타이머 초기화
     # 폭발 효과 및 제거 타이머 초기화
@@ -387,7 +386,6 @@ def finish():
         del font  # 폰트 객체 해제
         font = None
     game_world.clear()  # 모든 게임 객체 정리
-    close_canvas()
 
 # 게임 프레임워크가 사용하는 메소드 연결
 def pause():

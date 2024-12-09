@@ -11,7 +11,6 @@ background_music = None  # 배경 음악
 
 def init():
     global background_image, background_music, timer
-    open_canvas()  # 캔버스 열기
 
     # 배경 이미지 로드
     background_image = load_image('./assets/enter_stage2.png')  # Stage 2 전환 화면
@@ -54,4 +53,3 @@ def finish():
     global background_image, background_music
     stop_music()  # 음악 정지
     del background_image
-    close_canvas()

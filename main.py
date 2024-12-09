@@ -11,4 +11,6 @@ import stage2_mode
 import start_mode
 import win_mode
 
+open_canvas()
 game_framework.run(start_mode)
+close_canvas()

@@ -11,7 +11,6 @@ start_music = None  # 시작 화면 음악
 def init():
     """시작 모드에 진입"""
     global start_image, start_music
-    open_canvas()
     start_image = load_image('./assets/game_start.png')  # 시작 화면 이미지 로드
 
     # 음악 로드 및 재생

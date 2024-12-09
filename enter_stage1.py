@@ -10,7 +10,6 @@ background_music = None  # 배경 음악
 
 def init():
     global background_image, background_music, timer
-    open_canvas()  # 캔버스 열기
 
     # 배경 이미지 로드
     background_image = load_image('./assets/enter_stage1.png')  # Stage 1 전환 화면
@@ -48,14 +47,6 @@ def stop_music():
     if background_music:
         background_music.stop()
 
-def quit_game():
-    """게임 종료"""
-    global background_image, background_music
-    stop_music()  # 음악 정지
-    if background_image:
-        del background_image
-    close_canvas()  # 캔버스 닫기
-    game_framework.quit()  # 게임 프레임워크 종료
 
 def finish():
     """모드 종료"""
@@ -63,4 +54,3 @@ def finish():
     stop_music()  # 음악 정지
     if background_image:
         del background_image
-    close_canvas()  # 캔버스 닫기

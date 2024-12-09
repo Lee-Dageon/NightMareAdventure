@@ -10,8 +10,6 @@ lose_music = None  # 패배 화면 음악
 def init():
     global image, current_stage, lose_music
 
-    open_canvas()
-
     current_mode = "stage1_mode"
 
     # 모드에 따라 current_stage 설정
