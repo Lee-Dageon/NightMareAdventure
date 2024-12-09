@@ -34,7 +34,6 @@ def update():
     pass
 
 def draw():
-    clear_canvas()
     image.draw_to_origin(0, 0, 800, 600)
     update_canvas()
 
@@ -66,7 +65,6 @@ def quit_game():
     stop_music()  # 음악 정지
     if image:
         del image
-    close_canvas()  # 캔버스 닫기
     game_framework.quit()  # 게임 프레임워크 종료
 
 def finish():

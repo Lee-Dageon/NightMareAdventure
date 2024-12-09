@@ -8,7 +8,6 @@ win_music = None  # 승리 음악
 def init():
     """승리 모드에 진입"""
     global win_image, win_music
-    open_canvas()
     win_image = load_image('./Art/Menu/win.png')  # 승리 화면 이미지 로드
 
     # MP3 음악 로드 및 재생
@@ -20,7 +19,6 @@ def update():
     pass
 
 def draw():
-    clear_canvas()
     win_image.draw_to_origin(0, 0, 800, 600)
     update_canvas()
 
@@ -44,12 +42,6 @@ def stop_music():
         win_music.stop()
 
 def quit_game():
-    """게임 종료"""
-    global win_image, win_music
-    stop_music()  # 음악 정지
-    if win_image:
-        del win_image
-    close_canvas()  # 캔버스 닫기
     game_framework.quit()  # 게임 프레임워크 종료
 
 def finish():
@@ -57,4 +49,3 @@ def finish():
     stop_music()  # 음악 정지
     if win_image:
         del win_image
-    close_canvas()

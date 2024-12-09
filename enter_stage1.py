@@ -16,7 +16,7 @@ def init():
 
     # 음악 로드 및 재생
     background_music = load_music('./assets/Music/enter_stage_1.ogg')  # 음악 파일 로드
-    background_music.set_volume(100)  # 볼륨 설정 (0 ~ 128)
+    background_music.set_volume(128)  # 볼륨 설정 (0 ~ 128)
     background_music.repeat_play()  # 음악 반복 재생
 
     timer = get_time()  # 시작 시간을 초기화
@@ -46,6 +46,10 @@ def stop_music():
     global background_music
     if background_music:
         background_music.stop()
+
+
+def quit_game():
+    game_framework.quit()  # 게임 프레임워크 종료
 
 
 def finish():

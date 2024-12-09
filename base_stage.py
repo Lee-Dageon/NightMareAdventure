@@ -1,7 +1,7 @@
 from pico2d import *
+
 import game_framework
 import game_world
-import key
 import lose_mode_stage2
 from bomb_effect import BombEffect
 from key import Key
@@ -37,21 +37,27 @@ bomb_spawn_timer = 0  # 마지막 폭탄 생성 시점
 bomb_spawn_interval = 1.5  # 폭탄 생성 간격 (초)
 special_bomb_timer = 0  # 마지막 특수 폭탄 생성 시점
 potion_spawn_timer = 0
-power_monster_spawn_timer = 1.0
+power_monster_spawn_timer = 0
+stage_start_time = 0  # 스테이지 시작 시간을 저장하는 변수
 
 def init():
     global player, monsters, bombs, camera, background, range_image, health_bar_image
     global bomb_count, spawn_timer, spawn_interval, spawn_count, current_time, key_display_time
     global bomb_spawn_timer, special_bomb_timer, monster_removal_timers, bomb_effects, key_collected, key_spawned, bomb_sound
+    global stage_start_time
 
+    # 스테이지 시작 시 Key 표시 시간 초기화
+    key_display_time = 100  # 현재 시간 + 3분
+
+    stage_start_time = get_time()  # 스테이지가 시작된 시점 기록
 
     # 폭탄 터지는 사운드 로드
     bomb_sound = load_wav('./assets/sound/bomb.wav')  # 폭탄 사운드
-    bomb_sound.set_volume(64)  # 볼륨 조절 (0 ~ 128)
+    bomb_sound.set_volume(128)  # 볼륨 조절 (0 ~ 128)
 
     # 포션 획득 사운드 로드
     potion_sound = load_wav('./assets/sound/potion.wav')  # 포션 사운드
-    potion_sound.set_volume(64)  # 볼륨 조절 (0 ~ 128)
+    potion_sound.set_volume(128)  # 볼륨 조절 (0 ~ 128)
 
     # 현재 모드를 확인하여 배경 이미지 설정
     current_mode = game_framework.stack[-1].__name__
@@ -87,8 +93,7 @@ def init():
     bomb_spawn_timer = 0  # 마지막 폭탄 생성 시점
     special_bomb_timer = 0  # 특수 폭탄 생성 타이머
 
-    # 스테이지 시작 시 Key 표시 시간 초기화
-    key_display_time = 3  # 현재 시간 + 3분
+
 
     # 폭발 효과 및 제거 타이머 초기화
     # 폭발 효과 및 제거 타이머 초기화
@@ -128,9 +133,8 @@ def spawn_monsters(count, player, camera):
 
 def spawn_key():
     """Key를 3분 후에 생성."""
-    global key_display_time, key_collected, key_spawned
+    global key_display_time, key_collected, key_spawned, current_time
 
-    current_time = get_time()  # 현재 시간을 가져옴
     if not key_collected and not key_spawned and current_time >= key_display_time:
         # Key 생성
         x = random.randint(100, MAP_WIDTH - 100)  # Key 생성 위치
@@ -184,19 +188,28 @@ def handle_bomb_explosion(x, y):
     world_x = x + camera.x
     world_y = y + camera.y
 
-
     for obj in game_world.world[1]:
-        if hasattr(obj, 'tag') and obj.tag == "m":
+        if hasattr(obj, 'tag') and obj.tag in ["m", "M"]:  # 일반 몬스터와 파워 몬스터 모두 처리
             distance = ((obj.x - world_x) ** 2 + (obj.y - world_y) ** 2) ** 0.5
-            delay = distance * 0.002  # 거리 비례 딜레이 (조정 가능)
-            if distance <= 300:  # 반경 조건
+            delay = distance * 0.002  # 거리 비례 딜레이
+            if distance <= 300:  # 폭발 반경 내에 있는 경우
                 if obj.type == "green":
                     bomb_effects.append(BombEffect(obj.x, obj.y, camera, effect_type="green", delay=delay))
                 elif obj.type == "red":
                     bomb_effects.append(BombEffect(obj.x, obj.y, camera, effect_type="red", delay=delay))
                 else:
                     bomb_effects.append(BombEffect(obj.x, obj.y, camera, effect_type="gray", delay=delay))
-                monster_removal_timers.append(MonsterRemovalTimer(obj, delay))
+
+                # 체력 감소 처리
+                if hasattr(obj, 'hp'):  # hp 속성이 있는 경우 (파워 몬스터)
+                    obj.hp -= 1
+                    print(f"[DEBUG] Monster HP: {obj.hp}")
+                    if obj.hp <= 0:  # 체력이 0이 되면 제거
+                        game_world.remove_object(obj)
+                        print("[DEBUG] Monster Killed!")
+                else:
+                    # 일반 몬스터는 즉시 제거
+                    monster_removal_timers.append(MonsterRemovalTimer(obj, delay))
 
 
 
@@ -227,9 +240,9 @@ def handle_events():
 # 게임 업데이트 로직
 def update():
     global spawn_timer, spawn_count, bomb_spawn_timer, \
-        special_bomb_timer, bomb_effects, spawn_interval, potion_spawn_timer, power_monster_spawn_timer
+        special_bomb_timer, bomb_effects, spawn_interval, potion_spawn_timer, power_monster_spawn_timer, current_time
 
-    current_time = get_time()  # 현재 시간 가져오기
+    current_time = get_time() - stage_start_time  # 스테이지 기준 경과 시간
 
     # 몬스터 스폰 타이머 확인 및 호출
     if current_time > spawn_timer + spawn_interval:
@@ -246,7 +259,7 @@ def update():
 
     # Power Monster 스폰 타이머 확인 및 호출
     current_mode = game_framework.stack[-1].__name__
-    if current_mode == 'stage2_mode' and current_time > power_monster_spawn_timer + 20.0:
+    if current_mode == 'stage2_mode' and current_time > power_monster_spawn_timer + 10.0:
         power_monster_spawn_timer = current_time
         spawn_power_monster(player, camera)
 
@@ -322,15 +335,17 @@ def draw_bomb_count():
         font = load_font('consola.ttf', 30)
     font.draw(10,570, f"Bomb Count: {bomb_count}", (255, 0,0))  # 좌상단에 출력
 
+
 def draw_current_time():
-    """현재 시간을 실시간으로 화면에 출력"""
-    global font
+    """100에서 감소하는 시간을 실시간으로 화면에 출력"""
+    global font, current_time
     if font is None:  # 폰트가 로드되지 않은 경우 로드
         font = load_font('consola.ttf', 30)
-    current_time = get_time()  # 현재 시간 가져오기
-    font.draw(580, 570, f"Time: {current_time:.2f} s", (255, 255, 0))  # 좌상단에 초 단위로 출력
 
+    # 100에서 감소한 시간 계산
+    remaining_time = max(0, 100 - current_time)
 
+    font.draw(580, 570, f"Time: {remaining_time:.2f} s", (255, 255, 0))  # 좌상단에 초 단위로 출력
 
 
 # 화면 그리기

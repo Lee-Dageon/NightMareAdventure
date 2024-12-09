@@ -17,7 +17,7 @@ def init():
 
     # 배경 음악 로드 및 재생
     background_music = load_music('./assets/Music/enter_stage_2.mp3')  # 음악 파일 경로
-    background_music.set_volume(64)  # 볼륨 설정 (0 ~ 128)
+    background_music.set_volume(128)  # 볼륨 설정 (0 ~ 128)
     background_music.repeat_play()  # 음악 반복 재생
 
     timer = get_time()  # 시작 시간을 초기화
