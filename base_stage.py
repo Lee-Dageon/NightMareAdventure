@@ -89,10 +89,9 @@ def init():
     bomb_count = 0  # 초기 폭탄 개수
     spawn_timer = 0  # 마지막 몬스터 스폰 시점
     spawn_interval = 5.0  # 몬스터 스폰 간격
-    spawn_count = 20  # 처음 스폰되는 몬스터 수
+    spawn_count = 17  # 처음 스폰되는 몬스터 수
     bomb_spawn_timer = 0  # 마지막 폭탄 생성 시점
     special_bomb_timer = 0  # 특수 폭탄 생성 타이머
-
 
 
     # 폭발 효과 및 제거 타이머 초기화
@@ -167,7 +166,7 @@ def spawn_power_monster(player, camera):
     game_world.add_object(power_monster, 1)  # 레이어 1에 추가
     game_world.add_collision_pair('player:power_monster', player, power_monster)  # 플레이어와 충돌 처리
     game_world.add_collision_pair('bomb:power_monster', None, power_monster)  # 폭탄과 충돌 처리
-    print("[DEBUG] Power Monster spawned!")
+  #  print("[DEBUG] Power Monster spawned!")
 
 
 
@@ -193,23 +192,21 @@ def handle_bomb_explosion(x, y):
             distance = ((obj.x - world_x) ** 2 + (obj.y - world_y) ** 2) ** 0.5
             delay = distance * 0.002  # 거리 비례 딜레이
             if distance <= 300:  # 폭발 반경 내에 있는 경우
-                if obj.type == "green":
-                    bomb_effects.append(BombEffect(obj.x, obj.y, camera, effect_type="green", delay=delay))
-                elif obj.type == "red":
-                    bomb_effects.append(BombEffect(obj.x, obj.y, camera, effect_type="red", delay=delay))
-                else:
-                    bomb_effects.append(BombEffect(obj.x, obj.y, camera, effect_type="gray", delay=delay))
-
-                # 체력 감소 처리
-                if hasattr(obj, 'hp'):  # hp 속성이 있는 경우 (파워 몬스터)
+                if hasattr(obj, 'hp'):  # 파워 몬스터의 경우
                     obj.hp -= 1
-                    print(f"[DEBUG] Monster HP: {obj.hp}")
-                    if obj.hp <= 0:  # 체력이 0이 되면 제거
-                        game_world.remove_object(obj)
-                        print("[DEBUG] Monster Killed!")
-                else:
-                    # 일반 몬스터는 즉시 제거
-                    monster_removal_timers.append(MonsterRemovalTimer(obj, delay))
+                  #  print(f"[DEBUG] Power Monster HP: {obj.hp}")
+                    if obj.hp <= 0:  # 파워 몬스터가 죽을 때
+                        bomb_effects.append(BombEffect(obj.x, obj.y, camera, effect_type="gray", delay=delay))  # gray 효과
+                        monster_removal_timers.append(MonsterRemovalTimer(obj, delay))  # 제거 타이머 추가
+                      #  print("[DEBUG] Power Monster Killed!")
+                else:  # 일반 몬스터의 경우
+                    if obj.type == "green":
+                        bomb_effects.append(BombEffect(obj.x, obj.y, camera, effect_type="green", delay=delay))
+                    elif obj.type == "red":
+                        bomb_effects.append(BombEffect(obj.x, obj.y, camera, effect_type="red", delay=delay))
+                    monster_removal_timers.append(MonsterRemovalTimer(obj, delay))  # 제거 타이머 추가
+                  #  print("[DEBUG] Monster Killed!")
+
 
 
 
@@ -253,7 +250,7 @@ def update():
         # 현재 모드를 확인하여 스폰 속도 조정
         current_mode = game_framework.stack[-1].__name__
         if current_mode == "stage2_mode":
-            spawn_interval = min(6.5, spawn_interval + 1)  # stage2에서는 스폰 간격을 느리게 조정
+            spawn_interval = min(7.0, spawn_interval + 1)  # stage2에서는 스폰 간격을 느리게 조정
         else:
             spawn_interval = min(9.0, spawn_interval + 1)  # stage1에서는 스폰 간격을 느리게 조정
 
@@ -305,7 +302,7 @@ def update():
             # 현재 게임 모드에 따라 다음 모드로 전환
             if game_framework.stack[-1].__name__ == 'stage1_mode':
                 game_framework.change_mode(lose_mode_stage1)
-                print(f"Current mode: {game_framework.stack[-1].__name__}")  # 디버깅 메시지
+              #  print(f"Current mode: {game_framework.stack[-1].__name__}")  # 디버깅 메시지
 
             elif game_framework.stack[-1].__name__ == 'stage2_mode':
                 import win_mode  # Import win_mode 모드

@@ -34,6 +34,7 @@ def update():
     pass
 
 def draw():
+    clear_canvas()
     image.draw_to_origin(0, 0, 800, 600)
     update_canvas()
 
@@ -43,7 +44,7 @@ def handle_events():
     events = get_events()
     for event in events:
         if event.type == SDL_QUIT:
-            quit_game()
+            game_framework.quit()
         elif event.type == SDL_KEYDOWN:
             if event.key == SDLK_SPACE:  # SPACE 키로 재시작
                 # 현재 스테이지에 따라 해당 스테이지로 돌아감
@@ -51,7 +52,7 @@ def handle_events():
                     stop_music()  # 음악 정지
                     game_framework.change_mode(enter_stage2)
             elif event.key == SDLK_ESCAPE:
-                quit_game()
+                game_framework.quit()
 
 def stop_music():
     """배경 음악 정지"""
@@ -59,17 +60,9 @@ def stop_music():
     if background_music:
         background_music.stop()
 
-def quit_game():
-    """게임 종료"""
-    global image, background_music
-    stop_music()  # 음악 정지
-    if image:
-        del image
-    game_framework.quit()  # 게임 프레임워크 종료
-
 def finish():
     global image, background_music
     stop_music()  # 음악 정지
     if image:
         del image
-    print(f"Lose Mode Finished for {current_stage}")
+   # print(f"Lose Mode Finished for {current_stage}")
