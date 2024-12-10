@@ -30,7 +30,7 @@ key_collected = False  # Key 획득 여부
 # 스폰 관련 변수
 spawn_timer = 0  # 마지막 몬스터 스폰 시점
 spawn_interval = 5.0  # 몬스터 스폰 간격 (초)
-spawn_count = 20  # 처음 스폰되는 몬스터 수
+spawn_count = 0  # 처음 스폰되는 몬스터 수
 
 # 폭탄 생성 관련 변수
 bomb_spawn_timer = 0  # 마지막 폭탄 생성 시점
@@ -89,7 +89,7 @@ def init():
     bomb_count = 0  # 초기 폭탄 개수
     spawn_timer = 0  # 마지막 몬스터 스폰 시점
     spawn_interval = 5.0  # 몬스터 스폰 간격
-    spawn_count = 10  # 처음 스폰되는 몬스터 수
+    spawn_count = 20  # 처음 스폰되는 몬스터 수
     bomb_spawn_timer = 0  # 마지막 폭탄 생성 시점
     special_bomb_timer = 0  # 특수 폭탄 생성 타이머
 
