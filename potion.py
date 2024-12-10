@@ -56,7 +56,7 @@ class Potion:
     def handle_collision(self, group, other):
         """충돌 처리"""
         if group == "player:potion":
-            other.heal(5)  # 플레이어 체력을 5 회복
+            other.heal(8)  # 플레이어 체력을 5 회복
             print("[DEBUG] Potion consumed! Player HP increased.")
             game_world.remove_object(self)  # 포션 제거
 

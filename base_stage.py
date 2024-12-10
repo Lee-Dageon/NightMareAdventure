@@ -34,7 +34,7 @@ spawn_count = 0  # 처음 스폰되는 몬스터 수
 
 # 폭탄 생성 관련 변수
 bomb_spawn_timer = 0  # 마지막 폭탄 생성 시점
-bomb_spawn_interval = 1.5  # 폭탄 생성 간격 (초)
+bomb_spawn_interval = 0  # 폭탄 생성 간격 (초)
 special_bomb_timer = 0  # 마지막 특수 폭탄 생성 시점
 potion_spawn_timer = 0
 power_monster_spawn_timer = 0
@@ -42,7 +42,7 @@ stage_start_time = 0  # 스테이지 시작 시간을 저장하는 변수
 
 def init():
     global player, monsters, bombs, camera, background, range_image, health_bar_image
-    global bomb_count, spawn_timer, spawn_interval, spawn_count, current_time, key_display_time
+    global bomb_count, spawn_timer, spawn_interval, spawn_count, current_time, key_display_time, bomb_spawn_interval
     global bomb_spawn_timer, special_bomb_timer, monster_removal_timers, bomb_effects, key_collected, key_spawned, bomb_sound
     global stage_start_time
 
@@ -92,6 +92,7 @@ def init():
     spawn_count = 17  # 처음 스폰되는 몬스터 수
     bomb_spawn_timer = 0  # 마지막 폭탄 생성 시점
     special_bomb_timer = 0  # 특수 폭탄 생성 타이머
+    bomb_spawn_interval = 6
 
 
     # 폭발 효과 및 제거 타이머 초기화
@@ -269,7 +270,7 @@ def update():
     # 특수 폭탄 생성
     if game_framework.stack[-1].__name__ == "stage2_mode":
         # stage2에서는 5초마다 생성
-        if current_time > special_bomb_timer + 7.0:
+        if current_time > special_bomb_timer + 10.0:
             special_bomb_timer = current_time
             spawn_bomb(camera, is_special=True)
     else:

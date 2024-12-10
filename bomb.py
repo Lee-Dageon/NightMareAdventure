@@ -62,7 +62,7 @@ class Bomb:
             print(f"{'Special ' if self.is_special else ''}Bomb collided with Player!")
             # 특수 폭탄은 추가 효과 적용
             if self.is_special:
-                base_stage.bomb_count += 9  # 플레이어의 폭탄 개수를 10 증가
+                base_stage.bomb_count += 4  # 플레이어의 폭탄 개수를 10 증가
 
             game_world.remove_object(self)  # 폭탄 삭제
 
